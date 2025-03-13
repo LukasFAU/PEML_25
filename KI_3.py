@@ -181,45 +181,45 @@ def process_csv(input_csv):
 
     return class_positions, output_csv
 
-# # Referenzpunkte einlesen
-# def process_reference_csv(reference_csv):
-#     reference_positions = defaultdict(list)
-#     with open(reference_csv, mode='r') as file:
-#         reader = csv.reader(file)
-#         next(reader)
+# Referenzpunkte einlesen
+def process_reference_csv(reference_csv):
+    reference_positions = defaultdict(list)
+    with open(reference_csv, mode='r') as file:
+        reader = csv.reader(file)
+        next(reader)
 
-#         for row in reader:
-#             image_file, class_name, x_mid, y_mid = row
-#             x_mid, y_mid = map(float, [x_mid, y_mid])
+        for row in reader:
+            image_file, class_name, x_mid, y_mid = row
+            x_mid, y_mid = map(float, [x_mid, y_mid])
 
-#             reference_positions[class_name].append((x_mid, y_mid))
+            reference_positions[class_name].append((x_mid, y_mid))
     
-#     return reference_positions
+    return reference_positions
 
-# # Visualisierung der Klassendaten
-# def visualize_class_positions(class_positions, reference_positions):
-#     plt.figure(figsize=(10, 6))
-#     unique_colors = {class_name: (random.random(), random.random(), random.random()) for class_name in class_positions}
+# Visualisierung der Klassendaten
+def visualize_class_positions(class_positions, reference_positions):
+    plt.figure(figsize=(10, 6))
+    unique_colors = {class_name: (random.random(), random.random(), random.random()) for class_name in class_positions}
 
-#     for class_name, positions in class_positions.items():
-#         x_coords = [pos[0] for pos in positions]
-#         y_coords = [pos[1] for pos in positions]
-#         color = unique_colors[class_name]
+    for class_name, positions in class_positions.items():
+        x_coords = [pos[0] for pos in positions]
+        y_coords = [pos[1] for pos in positions]
+        color = unique_colors[class_name]
 
-#         plt.plot(x_coords, y_coords, marker='o', label=f"{class_name} (Haupt)", linestyle='-', color=color)
+        plt.plot(x_coords, y_coords, marker='o', label=f"{class_name} (Haupt)", linestyle='-', color=color)
 
-#         if class_name in reference_positions:
-#             ref_positions = reference_positions[class_name]
-#             ref_x_coords = [pos[0] for pos in ref_positions]
-#             ref_y_coords = [pos[1] for pos in ref_positions]
-#             plt.plot(ref_x_coords, ref_y_coords, marker='o', label=f"{class_name} (Referenz)", linestyle='--', color=color)
+        if class_name in reference_positions:
+            ref_positions = reference_positions[class_name]
+            ref_x_coords = [pos[0] for pos in ref_positions]
+            ref_y_coords = [pos[1] for pos in ref_positions]
+            plt.plot(ref_x_coords, ref_y_coords, marker='o', label=f"{class_name} (Referenz)", linestyle='--', color=color)
 
-#     plt.title("Verlauf der Mittelpunkte der Klassen")
-#     plt.xlabel("X-Koordinate")
-#     plt.ylabel("Y-Koordinate")
-#     plt.legend()
-#     plt.grid(True)
-#     st.pyplot(plt)
+    plt.title("Verlauf der Mittelpunkte der Klassen")
+    plt.xlabel("X-Koordinate")
+    plt.ylabel("Y-Koordinate")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
 
 # # Datei-Uploads in Streamlit
 # uploaded_csv = st.file_uploader("🔼 Lade die Ergebnisse-CSV hoch", type=["csv"])
