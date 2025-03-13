@@ -275,6 +275,9 @@ if uploaded_csv is not None:
         reference_positions = process_reference_csv(reference_csv_path)
         st.success("✅ Referenzdaten geladen!")
 
+if not class_positions:
+    st.error("❌ Keine Klassendaten gefunden. Bitte überprüfen Sie die Eingabedateien.")
+
 # Daten visualisieren
 visualize_class_positions(class_positions, reference_positions)
 
