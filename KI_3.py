@@ -249,10 +249,10 @@ if uploaded_csv is not None:
         reference_positions = process_reference_csv(reference_csv_path)
         st.success("✅ Referenzdaten geladen!")
 
-    # Daten visualisieren
-#    visualize_class_positions(class_positions, reference_positions)
+# Daten visualisieren
+visualize_class_positions(class_positions, reference_positions)
 
-#     # Download-Link für bearbeitete CSV
-    # st.download_button("📥 Sortierte CSV herunterladen", data=open(sorted_csv_path, "rb").read(), file_name="sorted_results.csv")
-    # st.download_button("📥 CSV mit Mittelpunkten herunterladen", data=open(processed_csv_path, "rb").read(), file_name="processed_results.csv")
+# Download-Link für bearbeitete CSV
+st.download_button("📥 Sortierte CSV herunterladen", data=open(sorted_csv_path, "rb").read(), file_name="sorted_results.csv")
+st.download_button("📥 CSV mit Mittelpunkten herunterladen", data=open(processed_csv_path, "rb").read(), file_name="processed_results.csv")
 
