@@ -30,16 +30,22 @@ def detect_objects(image, model):
 
     return image, detections
 
-# Videoverarbeitung
+# Videoverarbeitung mit Fortschrittsanzeige
 def process_video(video_path, model, frame_step):
     cap = cv2.VideoCapture(video_path)
-    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    processed_frames = []
-    
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    frames_to_process = total_frames // frame_step
+
+    st.write(f"🎥 Gesamtzahl der Frames: **{total_frames}**")
+    st.write(f"⚡ Geplante Verarbeitung von **{frames_to_process}** Frames (Schrittweite: {frame_step})")
+
+    progress_bar = st.progress(0)
     st_frame = st.empty()
     results_list = []
 
     frame_index = 0
+    processed_frames = 0
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -52,7 +58,12 @@ def process_video(video_path, model, frame_step):
             results_list.append(detections)
 
             # Frame in Streamlit anzeigen
-            st_frame.image(processed_frame, channels="RGB", caption=f"Frame {frame_index}/{frame_count}")
+            st_frame.image(processed_frame, channels="RGB", caption=f"Frame {frame_index}/{total_frames}")
+
+            # Fortschritt berechnen und anzeigen
+            processed_frames += 1
+            progress = processed_frames / frames_to_process
+            progress_bar.progress(min(progress, 1.0))
 
         frame_index += 1
 
