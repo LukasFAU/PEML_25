@@ -235,9 +235,9 @@ def process_csv(input_csv):
     sort_csv(input_csv_path, sorted_csv_path)
     st.success("✅ Datei sortiert!")
 
-#     # Mittelpunkte berechnen
-#     class_positions, processed_csv_path = process_csv(sorted_csv_path)
-#     st.success("✅ Mittelpunkte berechnet!")
+    # Mittelpunkte berechnen
+    class_positions, processed_csv_path = process_csv(sorted_csv_path)
+    st.success("✅ Mittelpunkte berechnet!")
 
 #     # Falls Referenzdatei vorhanden ist, laden
 #     reference_positions = {}
