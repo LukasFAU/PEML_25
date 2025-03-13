@@ -231,9 +231,9 @@ def process_csv(input_csv):
 #         input_csv_path = temp_file.name
 
 #     # Sortieren der CSV
-#     sorted_csv_path = tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name
-#     sort_csv(input_csv_path, sorted_csv_path)
-#     st.success("✅ Datei sortiert!")
+    sorted_csv_path = tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name
+    sort_csv(input_csv_path, sorted_csv_path)
+    st.success("✅ Datei sortiert!")
 
 #     # Mittelpunkte berechnen
 #     class_positions, processed_csv_path = process_csv(sorted_csv_path)
