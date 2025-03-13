@@ -2,13 +2,14 @@ import streamlit as st
 import torch
 import cv2
 import numpy as np
+import tempfile
 import os
 from PIL import Image
 
-# Modell laden (stellen Sie sicher, dass best.pt im richtigen Ordner liegt)
+# Modell laden
 @st.cache_resource
 def load_model():
-    model_path = "best.pt"  # Das Modell muss in deinem Repository liegen
+    model_path = "best.pt"  # Achte darauf, dass diese Datei existiert
     model = torch.hub.load("ultralytics/yolov5", "custom", path=model_path, force_reload=True)
     return model
 
@@ -29,27 +30,78 @@ def detect_objects(image, model):
 
     return image, detections
 
-# Streamlit UI
-st.title("🔍 YOLOv5 Objekterkennung")
+# Videoverarbeitung
+def process_video(video_path, model, frame_step):
+    cap = cv2.VideoCapture(video_path)
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    processed_frames = []
+    
+    st_frame = st.empty()
+    results_list = []
 
-# Datei-Upload
-uploaded_file = st.file_uploader("Lade ein Bild hoch", type=["jpg", "png", "jpeg"])
+    frame_index = 0
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # Nur jeden n-ten Frame verwenden
+        if frame_index % frame_step == 0:
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            processed_frame, detections = detect_objects(frame_rgb, model)
+            results_list.append(detections)
+
+            # Frame in Streamlit anzeigen
+            st_frame.image(processed_frame, channels="RGB", caption=f"Frame {frame_index}/{frame_count}")
+
+        frame_index += 1
+
+    cap.release()
+    return results_list
+
+# Streamlit UI
+st.title("🔍 YOLOv5 Objekterkennung für Bilder & Videos")
+
+# Datei-Upload (Bilder & Videos)
+uploaded_file = st.file_uploader("Lade ein Bild oder Video hoch", type=["jpg", "png", "jpeg", "mp4"])
+
+# Eingabefeld für Frame-Rate
+st.subheader("Geben Sie den Anteil an verwendeten Frames ein")
+frame_step = st.number_input("Nur jeden n-ten Frame analysieren", min_value=1, value=1, step=1)
 
 if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    image = np.array(image)
-
-    st.image(image, caption="Hochgeladenes Bild", use_column_width=True)
-
     model = load_model()
 
-    # Objekterkennung durchführen
-    processed_image, detections = detect_objects(image, model)
+    if uploaded_file.type.startswith("image"):
+        # Bildverarbeitung
+        image = Image.open(uploaded_file)
+        image = np.array(image)
+        st.image(image, caption="Hochgeladenes Bild", use_column_width=True)
 
-    # Ergebnisse anzeigen
-    st.image(processed_image, caption="Erkannte Objekte", use_column_width=True)
-    
-    # Ergebnisse als Tabelle ausgeben
-    st.write("### 🔎 Ergebnisse")
-    for det in detections:
-        st.write(f"**{det[0]}** bei ({det[1]}, {det[2]}) - ({det[3]}, {det[4]}), Vertrauen: {det[5]:.2f}")
+        # Objekterkennung
+        processed_image, detections = detect_objects(image, model)
+        st.image(processed_image, caption="Erkannte Objekte", use_column_width=True)
+
+        # Ergebnisse anzeigen
+        st.write("### 🔎 Ergebnisse")
+        for det in detections:
+            st.write(f"**{det[0]}** bei ({det[1]}, {det[2]}) - ({det[3]}, {det[4]}), Vertrauen: {det[5]:.2f}")
+
+    elif uploaded_file.type == "video/mp4":
+        # Videoverarbeitung
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+            temp_file.write(uploaded_file.read())
+            temp_video_path = temp_file.name
+
+        st.video(temp_video_path)
+        st.write("⚡ Verarbeite Video ...")
+
+        results = process_video(temp_video_path, model, frame_step)
+
+        st.write("### 🔎 Ergebnisse aus dem Video")
+        for idx, frame_detections in enumerate(results):
+            st.write(f"**Frame {idx * frame_step}**:")
+            for det in frame_detections:
+                st.write(f"**{det[0]}** bei ({det[1]}, {det[2]}) - ({det[3]}, {det[4]}), Vertrauen: {det[5]:.2f}")
+
+        os.remove(temp_video_path)
