@@ -9,9 +9,61 @@ from PIL import Image
 # Modell laden
 @st.cache_resource
 def load_model():
-    model_path = "best.pt"  # Achte darauf, dass diese Datei existiert
+    model_path = "best.pt"  # Stelle sicher, dass best.pt vorhanden ist
     model = torch.hub.load("ultralytics/yolov5", "custom", path=model_path, force_reload=True)
     return model
+
+# Videoverarbeitung mit Fehlerbehandlung
+def process_video(video_path, model, frame_step):
+    st.write("🚀 **Starte Videoverarbeitung...**")
+    
+    cap = cv2.VideoCapture(video_path)
+    
+    if not cap.isOpened():
+        st.error("❌ Fehler: Das Video konnte nicht geöffnet werden!")
+        return []
+
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
+    if total_frames == 0:
+        st.error("❌ Fehler: Das Video enthält keine Frames oder kann nicht gelesen werden.")
+        return []
+
+    frames_to_process = max(1, total_frames // frame_step)
+
+    st.write(f"🎥 **Gesamtzahl der Frames:** {total_frames}")
+    st.write(f"⏱ **Framerate (FPS):** {fps}")
+    st.write(f"⚡ **Geplante Verarbeitung:** {frames_to_process} Frames (jeder {frame_step}. Frame)")
+
+    progress_bar = st.progress(0)
+    st_frame = st.empty()
+    results_list = []
+
+    frame_index = 0
+    processed_frames = 0
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        if frame_index % frame_step == 0:
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            processed_frame, detections = detect_objects(frame_rgb, model)
+            results_list.append(detections)
+
+            st_frame.image(processed_frame, channels="RGB", caption=f"Frame {frame_index}/{total_frames}")
+
+            # Fortschritt berechnen und anzeigen
+            processed_frames += 1
+            progress = processed_frames / frames_to_process
+            progress_bar.progress(min(progress, 1.0))
+
+        frame_index += 1
+
+    cap.release()
+    return results_list
 
 # Bildverarbeitung mit YOLOv5
 def detect_objects(image, model):
@@ -30,46 +82,6 @@ def detect_objects(image, model):
 
     return image, detections
 
-# Videoverarbeitung mit Fortschrittsanzeige
-def process_video(video_path, model, frame_step):
-    cap = cv2.VideoCapture(video_path)
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    frames_to_process = total_frames // frame_step
-
-    st.write(f"🎥 Gesamtzahl der Frames: **{total_frames}**")
-    st.write(f"⚡ Geplante Verarbeitung von **{frames_to_process}** Frames (Schrittweite: {frame_step})")
-
-    progress_bar = st.progress(0)
-    st_frame = st.empty()
-    results_list = []
-
-    frame_index = 0
-    processed_frames = 0
-
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        # Nur jeden n-ten Frame verwenden
-        if frame_index % frame_step == 0:
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            processed_frame, detections = detect_objects(frame_rgb, model)
-            results_list.append(detections)
-
-            # Frame in Streamlit anzeigen
-            st_frame.image(processed_frame, channels="RGB", caption=f"Frame {frame_index}/{total_frames}")
-
-            # Fortschritt berechnen und anzeigen
-            processed_frames += 1
-            progress = processed_frames / frames_to_process
-            progress_bar.progress(min(progress, 1.0))
-
-        frame_index += 1
-
-    cap.release()
-    return results_list
-
 # Streamlit UI
 st.title("🔍 YOLOv5 Objekterkennung für Bilder & Videos")
 
@@ -84,29 +96,23 @@ if uploaded_file is not None:
     model = load_model()
 
     if uploaded_file.type.startswith("image"):
-        # Bildverarbeitung
         image = Image.open(uploaded_file)
         image = np.array(image)
         st.image(image, caption="Hochgeladenes Bild", use_column_width=True)
 
-        # Objekterkennung
         processed_image, detections = detect_objects(image, model)
         st.image(processed_image, caption="Erkannte Objekte", use_column_width=True)
 
-        # Ergebnisse anzeigen
         st.write("### 🔎 Ergebnisse")
         for det in detections:
             st.write(f"**{det[0]}** bei ({det[1]}, {det[2]}) - ({det[3]}, {det[4]}), Vertrauen: {det[5]:.2f}")
 
     elif uploaded_file.type == "video/mp4":
-        # Videoverarbeitung
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
             temp_file.write(uploaded_file.read())
             temp_video_path = temp_file.name
 
         st.video(temp_video_path)
-        st.write("⚡ Verarbeite Video ...")
-
         results = process_video(temp_video_path, model, frame_step)
 
         st.write("### 🔎 Ergebnisse aus dem Video")
