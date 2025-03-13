@@ -133,53 +133,53 @@ if uploaded_file is not None:
 
 
 ####
-# st.title("📊 Bounding Box Datenverarbeitung & Visualisierung")
+st.title("📊 Bounding Box Datenverarbeitung & Visualisierung")
 
-# # Funktion zum Extrahieren der Bildnummer (z. B. frame_0001.png → 1)
-# def extract_image_number(image_filename):
-#     return int(image_filename.split('_')[1].split('.')[0])
+ # Funktion zum Extrahieren der Bildnummer (z. B. frame_0001.png → 1)
+def extract_image_number(image_filename):
+    return int(image_filename.split('_')[1].split('.')[0])
 
-# # CSV-Datei einlesen und sortieren
-# def sort_csv(input_csv, output_csv):
-#     with open(input_csv, mode='r') as infile:
-#         reader = csv.reader(infile)
-#         header = next(reader)
-#         rows = list(reader)
+# CSV-Datei einlesen und sortieren
+def sort_csv(input_csv, output_csv):
+    with open(input_csv, mode='r') as infile:
+        reader = csv.reader(infile)
+        header = next(reader)
+        rows = list(reader)
 
-#         # Nach Bildnummer sortieren
-#         rows.sort(key=lambda x: extract_image_number(x[0]))
+        # Nach Bildnummer sortieren
+        rows.sort(key=lambda x: extract_image_number(x[0]))
 
-#     with open(output_csv, mode='w', newline='') as outfile:
-#         writer = csv.writer(outfile)
-#         writer.writerow(header)
-#         writer.writerows(rows)
+    with open(output_csv, mode='w', newline='') as outfile:
+        writer = csv.writer(outfile)
+        writer.writerow(header)
+        writer.writerows(rows)
 
-# # Mittelpunkte berechnen
-# def process_csv(input_csv):
-#     class_positions = defaultdict(list)
-#     output_csv = tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name  # Temporäre Datei für Ausgabe
+# Mittelpunkte berechnen
+def process_csv(input_csv):
+    class_positions = defaultdict(list)
+    output_csv = tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name  # Temporäre Datei für Ausgabe
 
-#     with open(input_csv, mode='r') as file:
-#         reader = csv.reader(file)
-#         header = next(reader)
-#         rows = list(reader)
-#         rows.sort(key=lambda x: extract_image_number(x[0]))
+    with open(input_csv, mode='r') as file:
+        reader = csv.reader(file)
+        header = next(reader)
+        rows = list(reader)
+        rows.sort(key=lambda x: extract_image_number(x[0]))
 
-#         with open(output_csv, mode='w', newline='') as outfile:
-#             writer = csv.writer(outfile)
-#             writer.writerow(["Image", "Class", "X_mid", "Y_mid"])  
+        with open(output_csv, mode='w', newline='') as outfile:
+            writer = csv.writer(outfile)
+            writer.writerow(["Image", "Class", "X_mid", "Y_mid"])  
 
-#             for row in rows:
-#                 image_file, class_name, x1, y1, x2, y2, confidence = row
-#                 x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+            for row in rows:
+                image_file, class_name, x1, y1, x2, y2, confidence = row
+                x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
 
-#                 x_mid = (x1 + x2) / 2
-#                 y_mid = (y1 + y2) / 2
+                x_mid = (x1 + x2) / 2
+                y_mid = (y1 + y2) / 2
 
-#                 writer.writerow([image_file, class_name, x_mid, y_mid])
-#                 class_positions[class_name].append((x_mid, y_mid))
+                writer.writerow([image_file, class_name, x_mid, y_mid])
+                class_positions[class_name].append((x_mid, y_mid))
 
-#     return class_positions, output_csv
+    return class_positions, output_csv
 
 # # Referenzpunkte einlesen
 # def process_reference_csv(reference_csv):
