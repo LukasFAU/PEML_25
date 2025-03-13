@@ -196,8 +196,32 @@ def process_reference_csv(reference_csv):
     
     return reference_positions
 
-# Visualisierung der Klassendaten
-def visualize_class_positions(class_positions, reference_positions):
+# # Visualisierung der Klassendaten
+# def visualize_class_positions(class_positions, reference_positions):
+#     plt.figure(figsize=(10, 6))
+#     unique_colors = {class_name: (random.random(), random.random(), random.random()) for class_name in class_positions}
+
+#     for class_name, positions in class_positions.items():
+#         x_coords = [pos[0] for pos in positions]
+#         y_coords = [pos[1] for pos in positions]
+#         color = unique_colors[class_name]
+
+#         plt.plot(x_coords, y_coords, marker='o', label=f"{class_name} (Haupt)", linestyle='-', color=color)
+
+#         if class_name in reference_positions:
+#             ref_positions = reference_positions[class_name]
+#             ref_x_coords = [pos[0] for pos in ref_positions]
+#             ref_y_coords = [pos[1] for pos in ref_positions]
+#             plt.plot(ref_x_coords, ref_y_coords, marker='o', label=f"{class_name} (Referenz)", linestyle='--', color=color)
+
+#     plt.title("Verlauf der Mittelpunkte der Klassen")
+#     plt.xlabel("X-Koordinate")
+#     plt.ylabel("Y-Koordinate")
+#     plt.legend()
+#     plt.grid(True)
+#     st.pyplot(plt)
+
+def visualize_class_positions(class_positions, reference_positions=None):
     plt.figure(figsize=(10, 6))
     unique_colors = {class_name: (random.random(), random.random(), random.random()) for class_name in class_positions}
 
@@ -206,9 +230,11 @@ def visualize_class_positions(class_positions, reference_positions):
         y_coords = [pos[1] for pos in positions]
         color = unique_colors[class_name]
 
+        # Visualisierung der Positionspunkte der Klasse
         plt.plot(x_coords, y_coords, marker='o', label=f"{class_name} (Haupt)", linestyle='-', color=color)
 
-        if class_name in reference_positions:
+        # Falls Referenzpositionen vorhanden sind, diese ebenfalls visualisieren
+        if reference_positions and class_name in reference_positions:
             ref_positions = reference_positions[class_name]
             ref_x_coords = [pos[0] for pos in ref_positions]
             ref_y_coords = [pos[1] for pos in ref_positions]
