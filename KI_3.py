@@ -6,13 +6,13 @@ import tempfile
 import os
 from PIL import Image
 
-import pandas as pd
-# import csv
-# import os
-import matplotlib.pyplot as plt
-from collections import defaultdict
-import random
-import tempfile
+# import pandas as pd
+# # import csv
+# # import os
+# import matplotlib.pyplot as plt
+# from collections import defaultdict
+# import random
+# import tempfile
 
 # Modell laden
 @st.cache_resource
@@ -131,125 +131,128 @@ if uploaded_file is not None:
 
         os.remove(temp_video_path)
 
-st.title("📊 Bounding Box Datenverarbeitung & Visualisierung")
 
-# Funktion zum Extrahieren der Bildnummer (z. B. frame_0001.png → 1)
-def extract_image_number(image_filename):
-    return int(image_filename.split('_')[1].split('.')[0])
+####
+# st.title("📊 Bounding Box Datenverarbeitung & Visualisierung")
 
-# CSV-Datei einlesen und sortieren
-def sort_csv(input_csv, output_csv):
-    with open(input_csv, mode='r') as infile:
-        reader = csv.reader(infile)
-        header = next(reader)
-        rows = list(reader)
+# # Funktion zum Extrahieren der Bildnummer (z. B. frame_0001.png → 1)
+# def extract_image_number(image_filename):
+#     return int(image_filename.split('_')[1].split('.')[0])
 
-        # Nach Bildnummer sortieren
-        rows.sort(key=lambda x: extract_image_number(x[0]))
+# # CSV-Datei einlesen und sortieren
+# def sort_csv(input_csv, output_csv):
+#     with open(input_csv, mode='r') as infile:
+#         reader = csv.reader(infile)
+#         header = next(reader)
+#         rows = list(reader)
 
-    with open(output_csv, mode='w', newline='') as outfile:
-        writer = csv.writer(outfile)
-        writer.writerow(header)
-        writer.writerows(rows)
+#         # Nach Bildnummer sortieren
+#         rows.sort(key=lambda x: extract_image_number(x[0]))
 
-# Mittelpunkte berechnen
-def process_csv(input_csv):
-    class_positions = defaultdict(list)
-    output_csv = tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name  # Temporäre Datei für Ausgabe
+#     with open(output_csv, mode='w', newline='') as outfile:
+#         writer = csv.writer(outfile)
+#         writer.writerow(header)
+#         writer.writerows(rows)
 
-    with open(input_csv, mode='r') as file:
-        reader = csv.reader(file)
-        header = next(reader)
-        rows = list(reader)
-        rows.sort(key=lambda x: extract_image_number(x[0]))
+# # Mittelpunkte berechnen
+# def process_csv(input_csv):
+#     class_positions = defaultdict(list)
+#     output_csv = tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name  # Temporäre Datei für Ausgabe
 
-        with open(output_csv, mode='w', newline='') as outfile:
-            writer = csv.writer(outfile)
-            writer.writerow(["Image", "Class", "X_mid", "Y_mid"])  
+#     with open(input_csv, mode='r') as file:
+#         reader = csv.reader(file)
+#         header = next(reader)
+#         rows = list(reader)
+#         rows.sort(key=lambda x: extract_image_number(x[0]))
 
-            for row in rows:
-                image_file, class_name, x1, y1, x2, y2, confidence = row
-                x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+#         with open(output_csv, mode='w', newline='') as outfile:
+#             writer = csv.writer(outfile)
+#             writer.writerow(["Image", "Class", "X_mid", "Y_mid"])  
 
-                x_mid = (x1 + x2) / 2
-                y_mid = (y1 + y2) / 2
+#             for row in rows:
+#                 image_file, class_name, x1, y1, x2, y2, confidence = row
+#                 x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
 
-                writer.writerow([image_file, class_name, x_mid, y_mid])
-                class_positions[class_name].append((x_mid, y_mid))
+#                 x_mid = (x1 + x2) / 2
+#                 y_mid = (y1 + y2) / 2
 
-    return class_positions, output_csv
+#                 writer.writerow([image_file, class_name, x_mid, y_mid])
+#                 class_positions[class_name].append((x_mid, y_mid))
 
-# Referenzpunkte einlesen
-def process_reference_csv(reference_csv):
-    reference_positions = defaultdict(list)
-    with open(reference_csv, mode='r') as file:
-        reader = csv.reader(file)
-        next(reader)
+#     return class_positions, output_csv
 
-        for row in reader:
-            image_file, class_name, x_mid, y_mid = row
-            x_mid, y_mid = map(float, [x_mid, y_mid])
+# # Referenzpunkte einlesen
+# def process_reference_csv(reference_csv):
+#     reference_positions = defaultdict(list)
+#     with open(reference_csv, mode='r') as file:
+#         reader = csv.reader(file)
+#         next(reader)
 
-            reference_positions[class_name].append((x_mid, y_mid))
+#         for row in reader:
+#             image_file, class_name, x_mid, y_mid = row
+#             x_mid, y_mid = map(float, [x_mid, y_mid])
+
+#             reference_positions[class_name].append((x_mid, y_mid))
     
-    return reference_positions
+#     return reference_positions
 
-# Visualisierung der Klassendaten
-def visualize_class_positions(class_positions, reference_positions):
-    plt.figure(figsize=(10, 6))
-    unique_colors = {class_name: (random.random(), random.random(), random.random()) for class_name in class_positions}
+# # Visualisierung der Klassendaten
+# def visualize_class_positions(class_positions, reference_positions):
+#     plt.figure(figsize=(10, 6))
+#     unique_colors = {class_name: (random.random(), random.random(), random.random()) for class_name in class_positions}
 
-    for class_name, positions in class_positions.items():
-        x_coords = [pos[0] for pos in positions]
-        y_coords = [pos[1] for pos in positions]
-        color = unique_colors[class_name]
+#     for class_name, positions in class_positions.items():
+#         x_coords = [pos[0] for pos in positions]
+#         y_coords = [pos[1] for pos in positions]
+#         color = unique_colors[class_name]
 
-        plt.plot(x_coords, y_coords, marker='o', label=f"{class_name} (Haupt)", linestyle='-', color=color)
+#         plt.plot(x_coords, y_coords, marker='o', label=f"{class_name} (Haupt)", linestyle='-', color=color)
 
-        if class_name in reference_positions:
-            ref_positions = reference_positions[class_name]
-            ref_x_coords = [pos[0] for pos in ref_positions]
-            ref_y_coords = [pos[1] for pos in ref_positions]
-            plt.plot(ref_x_coords, ref_y_coords, marker='o', label=f"{class_name} (Referenz)", linestyle='--', color=color)
+#         if class_name in reference_positions:
+#             ref_positions = reference_positions[class_name]
+#             ref_x_coords = [pos[0] for pos in ref_positions]
+#             ref_y_coords = [pos[1] for pos in ref_positions]
+#             plt.plot(ref_x_coords, ref_y_coords, marker='o', label=f"{class_name} (Referenz)", linestyle='--', color=color)
 
-    plt.title("Verlauf der Mittelpunkte der Klassen")
-    plt.xlabel("X-Koordinate")
-    plt.ylabel("Y-Koordinate")
-    plt.legend()
-    plt.grid(True)
-    st.pyplot(plt)
+#     plt.title("Verlauf der Mittelpunkte der Klassen")
+#     plt.xlabel("X-Koordinate")
+#     plt.ylabel("Y-Koordinate")
+#     plt.legend()
+#     plt.grid(True)
+#     st.pyplot(plt)
 
-# Datei-Uploads in Streamlit
-uploaded_csv = st.file_uploader("🔼 Lade die Ergebnisse-CSV hoch", type=["csv"])
-uploaded_ref_csv = st.file_uploader("🔼 Lade die Referenz-CSV hoch (optional)", type=["csv"])
+# # Datei-Uploads in Streamlit
+# uploaded_csv = st.file_uploader("🔼 Lade die Ergebnisse-CSV hoch", type=["csv"])
+# uploaded_ref_csv = st.file_uploader("🔼 Lade die Referenz-CSV hoch (optional)", type=["csv"])
 
-if uploaded_csv is not None:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp_file:
-        temp_file.write(uploaded_csv.read())
-        input_csv_path = temp_file.name
+# if uploaded_csv is not None:
+#     with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp_file:
+#         temp_file.write(uploaded_csv.read())
+#         input_csv_path = temp_file.name
 
-    # Sortieren der CSV
-    sorted_csv_path = tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name
-    sort_csv(input_csv_path, sorted_csv_path)
-    st.success("✅ Datei sortiert!")
+#     # Sortieren der CSV
+#     sorted_csv_path = tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name
+#     sort_csv(input_csv_path, sorted_csv_path)
+#     st.success("✅ Datei sortiert!")
 
-    # Mittelpunkte berechnen
-    class_positions, processed_csv_path = process_csv(sorted_csv_path)
-    st.success("✅ Mittelpunkte berechnet!")
+#     # Mittelpunkte berechnen
+#     class_positions, processed_csv_path = process_csv(sorted_csv_path)
+#     st.success("✅ Mittelpunkte berechnet!")
 
-    # Falls Referenzdatei vorhanden ist, laden
-    reference_positions = {}
-    if uploaded_ref_csv is not None:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as ref_file:
-            ref_file.write(uploaded_ref_csv.read())
-            reference_csv_path = ref_file.name
+#     # Falls Referenzdatei vorhanden ist, laden
+#     reference_positions = {}
+#     if uploaded_ref_csv is not None:
+#         with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as ref_file:
+#             ref_file.write(uploaded_ref_csv.read())
+#             reference_csv_path = ref_file.name
 
-        reference_positions = process_reference_csv(reference_csv_path)
-        st.success("✅ Referenzdaten geladen!")
+#         reference_positions = process_reference_csv(reference_csv_path)
+#         st.success("✅ Referenzdaten geladen!")
 
-    # Daten visualisieren
-    visualize_class_positions(class_positions, reference_positions)
+#     # Daten visualisieren
+#     visualize_class_positions(class_positions, reference_positions)
 
-    # Download-Link für bearbeitete CSV
-    st.download_button("📥 Sortierte CSV herunterladen", data=open(sorted_csv_path, "rb").read(), file_name="sorted_results.csv")
-    st.download_button("📥 CSV mit Mittelpunkten herunterladen", data=open(processed_csv_path, "rb").read(), file_name="processed_results.csv")
+#     # Download-Link für bearbeitete CSV
+    # st.download_button("📥 Sortierte CSV herunterladen", data=open(sorted_csv_path, "rb").read(), file_name="sorted_results.csv")
+    # st.download_button("📥 CSV mit Mittelpunkten herunterladen", data=open(processed_csv_path, "rb").read(), file_name="processed_results.csv")
+
