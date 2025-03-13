@@ -221,16 +221,16 @@ def visualize_class_positions(class_positions, reference_positions):
     plt.grid(True)
     st.pyplot(plt)
 
-# # Datei-Uploads in Streamlit
-# uploaded_csv = st.file_uploader("🔼 Lade die Ergebnisse-CSV hoch", type=["csv"])
-# uploaded_ref_csv = st.file_uploader("🔼 Lade die Referenz-CSV hoch (optional)", type=["csv"])
+# Datei-Uploads in Streamlit
+uploaded_csv = st.file_uploader("🔼 Lade die Ergebnisse-CSV hoch", type=["csv"])
+uploaded_ref_csv = st.file_uploader("🔼 Lade die Referenz-CSV hoch (optional)", type=["csv"])
 
-# if uploaded_csv is not None:
-#     with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp_file:
-#         temp_file.write(uploaded_csv.read())
-#         input_csv_path = temp_file.name
+if uploaded_csv is not None:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp_file:
+        temp_file.write(uploaded_csv.read())
+        input_csv_path = temp_file.name
 
-#     # Sortieren der CSV
+    # Sortieren der CSV
     sorted_csv_path = tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name
     sort_csv(input_csv_path, sorted_csv_path)
     st.success("✅ Datei sortiert!")
@@ -239,18 +239,18 @@ def visualize_class_positions(class_positions, reference_positions):
     class_positions, processed_csv_path = process_csv(sorted_csv_path)
     st.success("✅ Mittelpunkte berechnet!")
 
-#     # Falls Referenzdatei vorhanden ist, laden
-#     reference_positions = {}
-#     if uploaded_ref_csv is not None:
-#         with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as ref_file:
-#             ref_file.write(uploaded_ref_csv.read())
-#             reference_csv_path = ref_file.name
+    # Falls Referenzdatei vorhanden ist, laden
+    reference_positions = {}
+    if uploaded_ref_csv is not None:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as ref_file:
+            ref_file.write(uploaded_ref_csv.read())
+            reference_csv_path = ref_file.name
 
-#         reference_positions = process_reference_csv(reference_csv_path)
-#         st.success("✅ Referenzdaten geladen!")
+        reference_positions = process_reference_csv(reference_csv_path)
+        st.success("✅ Referenzdaten geladen!")
 
-#     # Daten visualisieren
-#     visualize_class_positions(class_positions, reference_positions)
+    # Daten visualisieren
+#    visualize_class_positions(class_positions, reference_positions)
 
 #     # Download-Link für bearbeitete CSV
     # st.download_button("📥 Sortierte CSV herunterladen", data=open(sorted_csv_path, "rb").read(), file_name="sorted_results.csv")
