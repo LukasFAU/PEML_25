@@ -7,8 +7,8 @@ import os
 from PIL import Image
 
 import pandas as pd
-import csv
-import os
+# import csv
+# import os
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import random
