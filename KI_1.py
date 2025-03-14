@@ -305,7 +305,7 @@ else:
     st.write("Klassendaten wurden erfolgreich verarbeitet:", class_positions)
 
 # Daten visualisieren
-visualize_class_positions(class_positions, reference_positions)
+# visualize_class_positions(class_positions, reference_positions)
 
 # Download-Link für bearbeitete CSV
 st.download_button("📥 Sortierte CSV herunterladen", data=open(sorted_csv_path, "rb").read(), file_name="sorted_results.csv")
