@@ -1,9 +1,13 @@
 import streamlit as st
 import torch
+
+import os
+os.system("pip install opencv-python-headless")
+
 import cv2
 import numpy as np
 import tempfile
-import os
+# import os
 from PIL import Image
 import pandas as pd
 import matplotlib.pyplot as plt
