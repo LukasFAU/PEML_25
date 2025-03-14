@@ -5,17 +5,63 @@ import numpy as np
 import tempfile
 import os
 from PIL import Image
+import pandas as pd
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import random
-import csv  # CSV-Bibliothek importieren
+import csv
 
 # Modell laden
 @st.cache_resource
 def load_model():
-    model_path = "best.pt"  # Stelle sicher, dass best.pt vorhanden ist
+    model_path = "best.pt"
     model = torch.hub.load("ultralytics/yolov5", "custom", path=model_path, force_reload=True)
     return model
+
+# Videoverarbeitung mit Fehlerbehandlung
+def process_video(video_path, model, frame_step):
+    st.write("🚀 **Starte Videoverarbeitung...**")
+    
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        st.error("❌ Fehler: Das Video konnte nicht geöffnet werden!")
+        return []
+
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    frames_to_process = max(1, total_frames // frame_step)
+
+    progress_bar = st.progress(0)
+    st_frame = st.empty()
+    results_list = []
+    frame_index = 0
+    processed_frames = 0
+    
+    with open("detection_results.csv", mode="w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Image", "Class", "X1", "Y1", "X2", "Y2", "Confidence"])
+        
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            if frame_index % frame_step == 0:
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                processed_frame, detections = detect_objects(frame_rgb, model)
+                
+                for det in detections:
+                    writer.writerow([f"frame_{frame_index}.png", *det])
+                
+                st_frame.image(processed_frame, channels="RGB", caption=f"Frame {frame_index}/{total_frames}")
+                processed_frames += 1
+                progress = processed_frames / frames_to_process
+                progress_bar.progress(min(progress, 1.0))
+
+            frame_index += 1
+    
+    cap.release()
+    return "detection_results.csv"
 
 # Bildverarbeitung mit YOLOv5
 def detect_objects(image, model):
@@ -27,59 +73,82 @@ def detect_objects(image, model):
         class_name = model.names[int(cls)]
         detections.append((class_name, x1, y1, x2, y2, conf.item()))
 
-        # Bounding Box zeichnen
         cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
         cv2.putText(image, f"{class_name} ({conf:.2f})", (x1, y1 - 10), 
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     return image, detections
 
-# Mittelpunkte berechnen
-def calculate_midpoints(detections):
-    class_positions = defaultdict(list)
-    for det in detections:
-        class_name, x1, y1, x2, y2, _ = det
-        x_mid = (x1 + x2) / 2
-        y_mid = (y1 + y2) / 2
-        class_positions[class_name].append((x_mid, y_mid))
-    return class_positions
-
-# Visualisierung der Klassendaten
-def visualize_class_positions(class_positions):
-    plt.figure(figsize=(10, 6))
-    unique_colors = {class_name: (random.random(), random.random(), random.random()) for class_name in class_positions}
-
-    for class_name, positions in class_positions.items():
-        x_coords = [pos[0] for pos in positions]
-        y_coords = [pos[1] for pos in positions]
-        color = unique_colors[class_name]
-        plt.scatter(x_coords, y_coords, label=class_name, color=color)
-
-    plt.title("Verlauf der Mittelpunkte der Klassen")
-    plt.xlabel("X-Koordinate")
-    plt.ylabel("Y-Koordinate")
-    plt.legend()
-    plt.grid(True)
-    st.pyplot(plt)
-
 # Streamlit UI
-st.title("🔍 YOLOv5 Objekterkennung für Bilder")
-
-uploaded_file = st.file_uploader("Lade ein Bild hoch", type=["jpg", "png", "jpeg"])
+st.title("🔍 YOLOv5 Objekterkennung für Bilder & Videos")
+uploaded_file = st.file_uploader("Lade ein Bild oder Video hoch", type=["jpg", "png", "jpeg", "mp4"])
+frame_step = st.number_input("Nur jeden n-ten Frame analysieren", min_value=1, value=1, step=1)
 
 if uploaded_file is not None:
     model = load_model()
-    image = Image.open(uploaded_file)
-    image = np.array(image)
-    st.image(image, caption="Hochgeladenes Bild", use_column_width=True)
+    
+    if uploaded_file.type.startswith("image"):
+        image = Image.open(uploaded_file)
+        image = np.array(image)
+        st.image(image, caption="Hochgeladenes Bild", use_column_width=True)
+        processed_image, detections = detect_objects(image, model)
+        st.image(processed_image, caption="Erkannte Objekte", use_column_width=True)
 
-    processed_image, detections = detect_objects(image, model)
-    st.image(processed_image, caption="Erkannte Objekte", use_column_width=True)
+    elif uploaded_file.type == "video/mp4":
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+            temp_file.write(uploaded_file.read())
+            temp_video_path = temp_file.name
 
-    st.write("### 🔎 Ergebnisse")
-    for det in detections:
-        st.write(f"**{det[0]}** bei ({det[1]}, {det[2]}) - ({det[3]}, {det[4]}), Vertrauen: {det[5]:.2f}")
+        st.video(temp_video_path)
+        detection_csv = process_video(temp_video_path, model, frame_step)
+        os.remove(temp_video_path)
 
-    # Mittelpunkte berechnen und visualisieren
-    class_positions = calculate_midpoints(detections)
+# CSV-Datenverarbeitung
+st.title("📊 Bounding Box Datenverarbeitung & Visualisierung")
+
+def process_csv(input_csv):
+    class_positions = defaultdict(list)
+    processed_csv = "processed_results.csv"
+    
+    with open(input_csv, mode='r') as file:
+        reader = csv.reader(file)
+        header = next(reader)
+        rows = list(reader)
+    
+    with open(processed_csv, mode='w', newline='') as outfile:
+        writer = csv.writer(outfile)
+        writer.writerow(["Image", "Class", "X_mid", "Y_mid"])
+        
+        for row in rows:
+            image_file, class_name, x1, y1, x2, y2, confidence = row
+            x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+            x_mid = (x1 + x2) / 2
+            y_mid = (y1 + y2) / 2
+            writer.writerow([image_file, class_name, x_mid, y_mid])
+            class_positions[class_name].append((x_mid, y_mid))
+    
+    return class_positions, processed_csv
+
+if os.path.exists("detection_results.csv"):
+    class_positions, processed_csv_path = process_csv("detection_results.csv")
+    st.success("✅ Mittelpunkte berechnet!")
+    
+    def visualize_class_positions(class_positions):
+        plt.figure(figsize=(10, 6))
+        unique_colors = {class_name: (random.random(), random.random(), random.random()) for class_name in class_positions}
+        
+        for class_name, positions in class_positions.items():
+            x_coords = [pos[0] for pos in positions]
+            y_coords = [pos[1] for pos in positions]
+            color = unique_colors[class_name]
+            plt.plot(x_coords, y_coords, marker='o', label=f"{class_name}", linestyle='-', color=color)
+
+        plt.title("Verlauf der Mittelpunkte der Klassen")
+        plt.xlabel("X-Koordinate")
+        plt.ylabel("Y-Koordinate")
+        plt.legend()
+        plt.grid(True)
+        st.pyplot(plt)
+    
     visualize_class_positions(class_positions)
+    st.download_button("📥 CSV mit Mittelpunkten herunterladen", data=open(processed_csv_path, "rb").read(), file_name="processed_results.csv")
