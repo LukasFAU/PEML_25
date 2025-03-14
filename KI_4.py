@@ -3,6 +3,7 @@ import torch
 
 import os
 os.system("pip install opencv-python-headless")
+st.success("OpenCV wurde installiert. Starte die App neu, falls nötig.")
 
 import cv2
 import numpy as np
