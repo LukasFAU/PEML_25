@@ -9,6 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import random
+import csv  # CSV-Bibliothek importieren
 
 # Modell laden
 @st.cache_resource
