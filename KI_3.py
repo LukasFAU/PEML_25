@@ -155,6 +155,32 @@ def sort_csv(input_csv, output_csv):
         writer.writerows(rows)
 
 # Mittelpunkte berechnen
+# def process_csv(input_csv):
+#     class_positions = defaultdict(list)
+#     output_csv = tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name  # Temporäre Datei für Ausgabe
+
+#     with open(input_csv, mode='r') as file:
+#         reader = csv.reader(file)
+#         header = next(reader)
+#         rows = list(reader)
+#         rows.sort(key=lambda x: extract_image_number(x[0]))
+
+#         with open(output_csv, mode='w', newline='') as outfile:
+#             writer = csv.writer(outfile)
+#             writer.writerow(["Image", "Class", "X_mid", "Y_mid"])  
+
+#             for row in rows:
+#                 image_file, class_name, x1, y1, x2, y2, confidence = row
+#                 x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+
+#                 x_mid = (x1 + x2) / 2
+#                 y_mid = (y1 + y2) / 2
+
+#                 writer.writerow([image_file, class_name, x_mid, y_mid])
+#                 class_positions[class_name].append((x_mid, y_mid))
+
+#     return class_positions, output_csv
+
 def process_csv(input_csv):
     class_positions = defaultdict(list)
     output_csv = tempfile.NamedTemporaryFile(delete=False, suffix=".csv").name  # Temporäre Datei für Ausgabe
@@ -164,6 +190,13 @@ def process_csv(input_csv):
         header = next(reader)
         rows = list(reader)
         rows.sort(key=lambda x: extract_image_number(x[0]))
+
+        if not rows:
+            st.error("❌ Die CSV-Datei enthält keine Daten!")
+            return class_positions, output_csv  # Leere Daten zurückgeben
+
+        # Debugging: Zeige die verarbeitete CSV-Datei und die gefundenen Klassen
+        st.write(f"Verarbeitete CSV: {input_csv}, Klasse gefunden: {class_positions}")
 
         with open(output_csv, mode='w', newline='') as outfile:
             writer = csv.writer(outfile)
@@ -277,6 +310,8 @@ if uploaded_csv is not None:
 
 if not class_positions:
     st.error("❌ Keine Klassendaten gefunden. Bitte überprüfen Sie die Eingabedateien.")
+else:
+    st.write("Klassendaten wurden erfolgreich verarbeitet:", class_positions)
 
 # Daten visualisieren
 visualize_class_positions(class_positions, reference_positions)
