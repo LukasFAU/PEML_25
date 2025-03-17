@@ -6,6 +6,7 @@ import tempfile
 import os
 from PIL import Image
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # Modell laden
 @st.cache_resource
@@ -71,7 +72,8 @@ def process_video(video_path, model, frame_step):
     cap.release()
     
     plot_results(frame_numbers, class_names)
-    return results_list
+    
+    return results_list, frame_numbers, class_names
 
 # Bildverarbeitung mit YOLOv5
 def detect_objects(image, model):
@@ -125,5 +127,10 @@ if uploaded_file is not None:
             temp_video_path = temp_file.name
 
         st.video(temp_video_path)
-        results = process_video(temp_video_path, model, frame_step)
+        results, frame_numbers, class_names = process_video(temp_video_path, model, frame_step)
         os.remove(temp_video_path)
+        
+        # CSV-Datei zum Download bereitstellen
+        df = pd.DataFrame({"Frame": frame_numbers, "Klasse": class_names})
+        csv_data = df.to_csv(index=False).encode('utf-8')
+        st.download_button(label="📥 CSV herunterladen", data=csv_data, file_name="detektionen.csv", mime='text/csv')
