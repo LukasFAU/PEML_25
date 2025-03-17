@@ -8,9 +8,6 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Maximale Upload-Größe auf 1 GB erhöhen
-st.set_option('server.maxUploadSize', 1024)
-
 # Modell laden
 @st.cache_resource
 def load_model():
