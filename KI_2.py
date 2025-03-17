@@ -5,6 +5,7 @@ import numpy as np
 import tempfile
 import os
 from PIL import Image
+import matplotlib.pyplot as plt
 
 # Modell laden
 @st.cache_resource
@@ -39,6 +40,8 @@ def process_video(video_path, model, frame_step):
     progress_bar = st.progress(0)
     st_frame = st.empty()
     results_list = []
+    frame_numbers = []
+    class_names = []
 
     frame_index = 0
     processed_frames = 0
@@ -52,10 +55,13 @@ def process_video(video_path, model, frame_step):
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             processed_frame, detections = detect_objects(frame_rgb, model)
             results_list.append(detections)
+            
+            for det in detections:
+                frame_numbers.append(frame_index)
+                class_names.append(det[0])
 
             st_frame.image(processed_frame, channels="RGB", caption=f"Frame {frame_index}/{total_frames}")
 
-            # Fortschritt berechnen und anzeigen
             processed_frames += 1
             progress = processed_frames / frames_to_process
             progress_bar.progress(min(progress, 1.0))
@@ -63,6 +69,8 @@ def process_video(video_path, model, frame_step):
         frame_index += 1
 
     cap.release()
+    
+    plot_results(frame_numbers, class_names)
     return results_list
 
 # Bildverarbeitung mit YOLOv5
@@ -75,20 +83,28 @@ def detect_objects(image, model):
         class_name = model.names[int(cls)]
         detections.append((class_name, x1, y1, x2, y2, conf.item()))
 
-        # Bounding Box zeichnen
         cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
         cv2.putText(image, f"{class_name} ({conf:.2f})", (x1, y1 - 10), 
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     return image, detections
 
+# Ergebnisse visualisieren
+def plot_results(frame_numbers, class_names):
+    plt.figure(figsize=(10, 6))
+    plt.scatter(frame_numbers, class_names, marker='o', color='blue', alpha=0.6)
+    plt.xlabel("Frame Nummer")
+    plt.ylabel("Klassennamen")
+    plt.title("Erkannte Objekte über Frames hinweg")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    st.pyplot(plt)
+
 # Streamlit UI
 st.title("🔍 YOLOv5 Objekterkennung für Bilder & Videos")
 
-# Datei-Upload (Bilder & Videos)
 uploaded_file = st.file_uploader("Lade ein Bild oder Video hoch", type=["jpg", "png", "jpeg", "mp4"])
 
-# Eingabefeld für Frame-Rate
 st.subheader("Geben Sie den Anteil an verwendeten Frames ein")
 frame_step = st.number_input("Nur jeden n-ten Frame analysieren", min_value=1, value=1, step=1)
 
@@ -103,10 +119,6 @@ if uploaded_file is not None:
         processed_image, detections = detect_objects(image, model)
         st.image(processed_image, caption="Erkannte Objekte", use_column_width=True)
 
-        st.write("### 🔎 Ergebnisse")
-        for det in detections:
-            st.write(f"**{det[0]}** bei ({det[1]}, {det[2]}) - ({det[3]}, {det[4]}), Vertrauen: {det[5]:.2f}")
-
     elif uploaded_file.type == "video/mp4":
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
             temp_file.write(uploaded_file.read())
@@ -114,11 +126,4 @@ if uploaded_file is not None:
 
         st.video(temp_video_path)
         results = process_video(temp_video_path, model, frame_step)
-
-        st.write("### 🔎 Ergebnisse aus dem Video")
-        for idx, frame_detections in enumerate(results):
-            st.write(f"**Frame {idx * frame_step}**:")
-            for det in frame_detections:
-                st.write(f"**{det[0]}** bei ({det[1]}, {det[2]}) - ({det[3]}, {det[4]}), Vertrauen: {det[5]:.2f}")
-
         os.remove(temp_video_path)
