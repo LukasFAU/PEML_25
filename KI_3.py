@@ -87,6 +87,16 @@ def detect_objects(image, model):
 
     return image, detections
 
+def plot_results(frame_numbers, class_names):
+    plt.figure(figsize=(10, 6))
+    plt.scatter(frame_numbers, class_names, marker='o', color='blue', alpha=0.6)
+    plt.xlabel("Frame Nummer")
+    plt.ylabel("Klassennamen")
+    plt.title("Erkannte Objekte über Frames hinweg")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    st.pyplot(plt)
+
 # Streamlit UI
 st.title("🔍 YOLOv5 Objekterkennung für Bilder & Videos")
 
