@@ -11,7 +11,7 @@ import pandas as pd
 # Modell laden
 @st.cache_resource
 def load_model():
-    model_path = "best.pt"  # Stelle sicher, dass best.pt vorhanden ist
+    model_path = "best (1).pt"  # Stelle sicher, dass best.pt vorhanden ist
     model = torch.hub.load("ultralytics/yolov5", "custom", path=model_path, force_reload=True)
     return model
 
