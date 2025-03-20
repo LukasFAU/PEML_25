@@ -1,5 +1,8 @@
 import streamlit as st
 import subprocess
+
+python -m pip install --upgrade --force-reinstall opencv-python-headless
+
 st.write("🔍 Überprüfe installierte Pakete...")
 
 try:
