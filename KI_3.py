@@ -1,6 +1,6 @@
 import streamlit as st
 import torch
-import cv2
+
 import numpy as np
 import tempfile
 import os
@@ -9,6 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import random
+import cv2
 import csv  # CSV-Bibliothek importieren
 
 # Modell laden
