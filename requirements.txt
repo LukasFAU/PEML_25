@@ -1,4 +1,5 @@
-opencv-python-headless
+--upgrade --force-reinstall opencv-python-headless
+# opencv-python-headless
 torch
 torchvision
 ultralytics
