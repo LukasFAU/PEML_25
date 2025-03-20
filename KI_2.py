@@ -1,5 +1,5 @@
 import streamlit as st
-# import torch
+import torch
 # import cv2
 import numpy as np
 import tempfile
