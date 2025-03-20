@@ -1,5 +1,4 @@
 import streamlit as st
-import torch
 # import cv2
 import numpy as np
 import tempfile
@@ -7,6 +6,7 @@ import os
 from PIL import Image
 import matplotlib.pyplot as plt
 import pandas as pd
+import torch
 
 # Modell laden
 @st.cache_resource
