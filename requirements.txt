@@ -4,4 +4,6 @@ ultralytics
 opencv-python-headless
 numpy
 pillow
+pandas
+matplotlib
 streamlit
