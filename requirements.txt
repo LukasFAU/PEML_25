@@ -1,5 +1,16 @@
-# --upgrade --force-reinstall opencv-python-headless
-opencv-python-headless
+# # mit cv2
+# # --upgrade --force-reinstall opencv-python-headless
+# opencv-python-headless
+# torch
+# torchvision
+# ultralytics
+# numpy
+# pillow
+# pandas
+# matplotlib
+# streamlit
+
+# ersetzen von cv2
 torch
 torchvision
 ultralytics
@@ -8,3 +19,4 @@ pillow
 pandas
 matplotlib
 streamlit
+moviepy
