@@ -1,4 +1,11 @@
 import streamlit as st
+
+try:
+    import cv2
+    st.success("✅ OpenCV ist installiert!")
+except ImportError:
+    st.error("❌ OpenCV ist nicht installiert! Versuche es mit `opencv-python-headless` in der `requirements.txt`.")
+
 import numpy as np
 import cv2
 import tempfile
