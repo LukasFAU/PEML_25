@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import random
-import cv2
+# import cv2
 import csv  # CSV-Bibliothek importieren
 
 # Modell laden
