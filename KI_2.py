@@ -1,10 +1,16 @@
 import streamlit as st
+import subprocess
+st.write("🔍 Überprüfe installierte Pakete...")
 
 try:
     import cv2
     st.success("✅ OpenCV ist installiert!")
 except ImportError:
-    st.error("❌ OpenCV ist nicht installiert! Versuche es mit `opencv-python-headless` in der `requirements.txt`.")
+    st.error("❌ OpenCV ist nicht installiert!")
+
+# Liste aller installierten Pakete ausgeben
+installed_packages = subprocess.run(["pip", "freeze"], capture_output=True, text=True)
+st.text(installed_packages.stdout)
 
 import numpy as np
 import cv2
