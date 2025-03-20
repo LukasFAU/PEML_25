@@ -8,7 +8,7 @@ numpy
 pillow
 pandas
 matplotlib
-streamlit == 4.11.0.86
+streamlit
 
 # ersetzen von cv2
 # torch
