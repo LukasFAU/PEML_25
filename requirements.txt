@@ -1,7 +1,7 @@
+opencv-python-headless
 torch
 torchvision
 ultralytics
-opencv-python-headless
 numpy
 pillow
 pandas
