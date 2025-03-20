@@ -1,15 +1,15 @@
 import streamlit as st
 import torch
-# import cv2
-import numpy as np
-import tempfile
-import os
-from PIL import Image
-import pandas as pd
-import matplotlib.pyplot as plt
-from collections import defaultdict
-import random
-import csv  # CSV-Bibliothek importieren
+import cv2
+# import numpy as np
+# import tempfile
+# import os
+# from PIL import Image
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from collections import defaultdict
+# import random
+# import csv  # CSV-Bibliothek importieren
 
 # Modell laden
 @st.cache_resource
