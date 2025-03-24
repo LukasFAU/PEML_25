@@ -86,6 +86,14 @@ def detect_objects(image, model, confidence_threshold):
 # Ergebnisse visualisieren
 def plot_results(frame_numbers, class_names):
     class_order = ["Tür_zu", "Tür_auf", "WZ", "WS", "WS_Aufnahme_Dreht", "WS_Aufnahme_Steht", "Spahn"]
+    
+    # Sicherstellen, dass alle Klassen vorhanden sind
+    unique_classes = set(class_names)
+    for cls in class_order:
+        if cls not in unique_classes:
+            frame_numbers.append(None)
+            class_names.append(cls)
+    
     class_names_sorted = sorted(set(class_names), key=lambda x: class_order.index(x) if x in class_order else len(class_order))
     
     plt.figure(figsize=(10, 6))
@@ -93,7 +101,7 @@ def plot_results(frame_numbers, class_names):
     plt.xlabel("Frame Nummer")
     plt.ylabel("Klassennamen")
     plt.title("Erkannte Objekte über Frames hinweg")
-    plt.xticks(range(len(class_order)), class_order, rotation=45)
+    plt.yticks(class_order)
     plt.grid(True)
     st.pyplot(plt)
 
