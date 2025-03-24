@@ -72,36 +72,28 @@ def detect_objects(image, model, confidence_threshold):
     results = model(image)
     detections = []
     
-    detected_classes = set()
     for *xyxy, conf, cls in results.xyxy[0]:
         if conf.item() >= confidence_threshold:
             x1, y1, x2, y2 = map(int, xyxy)
             class_name = model.names[int(cls)]
             detections.append((class_name, x1, y1, x2, y2, conf.item()))
-            detected_classes.add(class_name)
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.putText(image, f"{class_name} ({conf:.2f})", (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-    
-    # Sicherstellen, dass alle Klassen in der Visualisierung erscheinen
-    required_classes = ["Tür zu", "Tür auf", "Spahn", "WZ", "WS", "WS-Aufnahme dreht", "WS-Aufnahme steht"]
-    for cls in required_classes:
-        if cls not in detected_classes:
-            detections.append((cls, 0, 0, 0, 0, 0.0))
     
     return image, detections
 
 # Ergebnisse visualisieren
 def plot_results(frame_numbers, class_names):
-    class_order = ["Tür zu", "Tür auf", "Spahn", "WZ", "WS", "WS-Aufnahme dreht", "WS-Aufnahme steht"]
-    class_names_sorted = sorted(class_names, key=lambda x: class_order.index(x) if x in class_order else len(class_order))
+    class_order = ["Tür_zu", "Tür_auf", "WZ", "WS", "WS_Aufnahme_Dreht", "WS_Aufnahme_Steht", "Spahn"]
+    class_names_sorted = sorted(set(class_names), key=lambda x: class_order.index(x) if x in class_order else len(class_order))
     
     plt.figure(figsize=(10, 6))
-    plt.scatter(frame_numbers, class_names_sorted, marker='o', color='blue', alpha=0.6)
+    plt.scatter(frame_numbers, class_names, marker='o', color='blue', alpha=0.6)
     plt.xlabel("Frame Nummer")
     plt.ylabel("Klassennamen")
     plt.title("Erkannte Objekte über Frames hinweg")
-    plt.xticks(rotation=45)
+    plt.xticks(range(len(class_order)), class_order, rotation=45)
     plt.grid(True)
     st.pyplot(plt)
 
