@@ -4,7 +4,6 @@ import numpy as np
 import tempfile
 import os
 from PIL import Image
-import pandas as pd
 import matplotlib.pyplot as plt
 import cv2
 import csv
@@ -18,7 +17,7 @@ def load_model():
 
 # Videoverarbeitung mit Fehlerbehandlung
 def process_video(video_path, model, frame_step, confidence_threshold):
-    st.write("🚀 **Starte Videoverarbeitung...**")
+    st.write("\U0001F680 **Starte Videoverarbeitung...**")
     
     cap = cv2.VideoCapture(video_path)
     
@@ -94,18 +93,19 @@ def plot_results(frame_numbers, class_names):
     plt.grid(True)
     st.pyplot(plt)
 
+# Funktion zum Speichern der Detektionen in einer CSV
+def save_detections_to_csv(detections, output_csv):
+    with open(output_csv, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Image/Frame", "Class", "X1", "Y1", "X2", "Y2", "Confidence"])
+        for detection in detections:
+            writer.writerow(detection)
+
 # Streamlit UI
 st.title("🔍 YOLOv5 Objekterkennung für Bilder & Videos")
 uploaded_file = st.file_uploader("Lade ein Bild oder Video hoch", type=["jpg", "png", "jpeg", "mp4"])
 frame_step = st.number_input("Nur jeden n-ten Frame analysieren", min_value=1, value=1, step=1)
 confidence_threshold = st.slider("Mindestkonfidenz für Erkennung", 0.0, 1.0, 0.5, 0.05)
-
-def save_detections_to_csv(detections, output_csv):
-    with open(output_csv, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["Image", "Class", "X1", "Y1", "X2", "Y2", "Confidence"])
-        for detection in detections:
-            writer.writerow(detection)
 
 if uploaded_file is not None:
     model = load_model()
@@ -116,6 +116,11 @@ if uploaded_file is not None:
         st.image(image, caption="Hochgeladenes Bild", use_column_width=True)
         processed_image, detections = detect_objects(image, model, confidence_threshold)
         st.image(processed_image, caption="Erkannte Objekte", use_column_width=True)
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp_file:
+            output_csv = temp_file.name
+            save_detections_to_csv(detections, output_csv)
+            st.download_button("📥 CSV mit Detektionen herunterladen", data=open(output_csv, "rb").read(), file_name="detections.csv")
     
     elif uploaded_file.type == "video/mp4":
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
@@ -124,4 +129,15 @@ if uploaded_file is not None:
         
         st.video(temp_video_path)
         results = process_video(temp_video_path, model, frame_step, confidence_threshold)
+        
+        video_detections = []
+        for frame_index, frame_detections in enumerate(results):
+            for det in frame_detections:
+                video_detections.append([f"Frame {frame_index}", *det])
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp_file:
+            output_csv = temp_file.name
+            save_detections_to_csv(video_detections, output_csv)
+            st.download_button("📥 CSV mit Detektionen herunterladen", data=open(output_csv, "rb").read(), file_name="detections.csv")
+        
         os.remove(temp_video_path)
