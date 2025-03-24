@@ -84,8 +84,11 @@ def detect_objects(image, model, confidence_threshold):
 
 # Ergebnisse visualisieren
 def plot_results(frame_numbers, class_names):
+    class_order = ["Tür zu", "Tür auf", "Spahn", "WZ", "WS", "WS-Aufnahme dreht", "WS-Aufnahme steht"]
+    class_names_sorted = sorted(class_names, key=lambda x: class_order.index(x) if x in class_order else len(class_order))
+    
     plt.figure(figsize=(10, 6))
-    plt.scatter(frame_numbers, class_names, marker='o', color='blue', alpha=0.6)
+    plt.scatter(frame_numbers, class_names_sorted, marker='o', color='blue', alpha=0.6)
     plt.xlabel("Frame Nummer")
     plt.ylabel("Klassennamen")
     plt.title("Erkannte Objekte über Frames hinweg")
