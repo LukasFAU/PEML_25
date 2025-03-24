@@ -72,14 +72,23 @@ def detect_objects(image, model, confidence_threshold):
     results = model(image)
     detections = []
     
+    detected_classes = set()
     for *xyxy, conf, cls in results.xyxy[0]:
         if conf.item() >= confidence_threshold:
             x1, y1, x2, y2 = map(int, xyxy)
             class_name = model.names[int(cls)]
             detections.append((class_name, x1, y1, x2, y2, conf.item()))
+            detected_classes.add(class_name)
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.putText(image, f"{class_name} ({conf:.2f})", (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    
+    # Sicherstellen, dass alle Klassen in der Visualisierung erscheinen
+    required_classes = ["Tür zu", "Tür auf", "Spahn", "WZ", "WS", "WS-Aufnahme dreht", "WS-Aufnahme steht"]
+    for cls in required_classes:
+        if cls not in detected_classes:
+            detections.append((cls, 0, 0, 0, 0, 0.0))
+    
     return image, detections
 
 # Ergebnisse visualisieren
