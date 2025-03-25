@@ -1,20 +1,21 @@
 import streamlit as st
 import torch
+
+import numpy as np
+import tempfile
+import os
+from PIL import Image
+import pandas as pd
+import matplotlib.pyplot as plt
+from collections import defaultdict
+import random
 import cv2
-# import numpy as np
-# import tempfile
-# import os
-# from PIL import Image
-# import pandas as pd
-# import matplotlib.pyplot as plt
-# from collections import defaultdict
-# import random
-# import csv  # CSV-Bibliothek importieren
+import csv  # CSV-Bibliothek importieren
 
 # Modell laden
 @st.cache_resource
 def load_model():
-    model_path = "best.pt"  # Stelle sicher, dass best.pt vorhanden ist
+    model_path = "best (1).pt"  # Stelle sicher, dass best.pt vorhanden ist
     model = torch.hub.load("ultralytics/yolov5", "custom", path=model_path, force_reload=True)
     return model
 
@@ -86,6 +87,16 @@ def detect_objects(image, model):
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     return image, detections
+
+def plot_results(frame_numbers, class_names):
+    plt.figure(figsize=(10, 6))
+    plt.scatter(frame_numbers, class_names, marker='o', color='blue', alpha=0.6)
+    plt.xlabel("Frame Nummer")
+    plt.ylabel("Klassennamen")
+    plt.title("Erkannte Objekte über Frames hinweg")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    st.pyplot(plt)
 
 # Streamlit UI
 st.title("🔍 YOLOv5 Objekterkennung für Bilder & Videos")
