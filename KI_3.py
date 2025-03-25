@@ -105,8 +105,8 @@ def plot_class_detections(frame_numbers, class_names):
             color = 'green'
         elif class_name == "WZ_Aufhanme_Steht":
             color = 'orange'
-        else:
-            color = 'blue'  # Andere Klassen, falls vorhanden
+#        else:
+#            color = 'blue'  # Andere Klassen, falls vorhanden
         plt.barh(y=0, width=1, left=frame_number, color=color, alpha=0.6, edgecolor=color)
 
     plt.xlabel("Frame Nummer")
