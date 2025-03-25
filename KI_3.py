@@ -95,16 +95,22 @@ def plot_results(frame_numbers, class_names):
     plt.grid(True)
     st.pyplot(plt)
 
-# Neue Funktion zum Plotten der Klassendetections
 def plot_class_detections(frame_numbers, class_names):
     plt.figure(figsize=(10, 2))  # Kleinere Höhe für den horizontalen Balken
 
-    # Zeichne den horizontalen Balken für jeden Frame
-    for frame_number, class_name in zip(frame_numbers, class_names):
+    # Vektor zum Speichern der Farben
+    colors = []
+
+    # Erste Schleife: Abfrage der Klassen und Speichern der Farben
+    for class_name in class_names:
         if class_name == "WZ_Aufhanme_Dreht":
             color = 'green'
         elif class_name == "WZ_Aufhanme_Steht":
             color = 'orange'
+        colors.append(color)
+
+    # Zweite Schleife: Plotten der Balken
+    for frame_number, color in zip(frame_numbers, colors):
         plt.barh(y=0, width=1, left=frame_number, color=color, alpha=0.6, edgecolor=color)
 
     plt.xlabel("Frame Nummer")
@@ -114,8 +120,6 @@ def plot_class_detections(frame_numbers, class_names):
     plt.yticks([])  # Entferne die y-Achse Ticks
     plt.grid(True, axis='x')
     st.pyplot(plt)
-
-# Den Rest des Codes unverändert lassen
 
 # Funktion zum Speichern der Detektionen in einer CSV
 def save_detections_to_csv(detections, output_csv):
