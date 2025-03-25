@@ -153,9 +153,9 @@ def plot_class_detections(frame_numbers, class_names):
     plt.grid(True, axis='x')
 
     # Legende hinzufügen
-    green_patch = mpatches.Patch(color='green', label='WZ_Aufhanme_Dreht')
-    orange_patch = mpatches.Patch(color='orange', label='WZ_Aufhanme_Steht')
-    red_patch = mpatches.Patch(color='red', label='Spahn Wechsel')
+    green_patch = mpatches.Patch(color='green', label='Maschien in Arbeit')
+    orange_patch = mpatches.Patch(color='orange', label='Maschien Steht')
+    red_patch = mpatches.Patch(color='red', label='Stillstan wegen Spahn')
     plt.legend(handles=[green_patch, orange_patch, red_patch], loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=3)
 
     st.pyplot(plt)
