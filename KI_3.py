@@ -66,6 +66,7 @@ def process_video(video_path, model, frame_step, confidence_threshold):
 
     cap.release()
     plot_results(frame_numbers, class_names)
+    plot_class_detections(frame_numbers, class_names)  # Neue Funktion aufrufen
     return results_list
 
 # Bildverarbeitung mit YOLOv5
@@ -94,8 +95,22 @@ def plot_results(frame_numbers, class_names):
     plt.grid(True)
     st.pyplot(plt)
 
-# Funktion zum Speichern der Detektionen in einer CSV
+# Neue Funktion zum Plotten der Klassendetections
+def plot_class_detections(frame_numbers, class_names):
+    plt.figure(figsize=(10, 6))
+    for frame_number, class_name in zip(frame_numbers, class_names):
+        if class_name == "WZ_Aufnahme_Drehen":
+            plt.bar(frame_number, 1, color='green', alpha=0.6)
+        elif class_name == "WZ_Aufnahme_Stehet":
+            plt.bar(frame_number, 1, color='orange', alpha=0.6)
+    plt.xlabel("Frame Nummer")
+    plt.ylabel("Erkennung")
+    plt.title("Klassendetections über Frames hinweg")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    st.pyplot(plt)
 
+# Funktion zum Speichern der Detektionen in einer CSV
 def save_detections_to_csv(detections, output_csv):
     with open(output_csv, mode='w', newline='') as file:
         writer = csv.writer(file)
