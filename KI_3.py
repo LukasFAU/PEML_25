@@ -4,8 +4,8 @@ import numpy as np
 import tempfile
 import os
 from PIL import Image
-
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import cv2
 import csv
 
@@ -110,6 +110,8 @@ def plot_class_detections(frame_numbers, class_names):
             color = 'green'
         elif class_name == "WZ_Aufhanme_Steht":
             color = 'orange'
+        else:
+            color = 'blue'  # Fallback Farbe, falls keine der Bedingungen zutrifft
 
         if class_name == "Spahn":
             spahn_values.append(1)
@@ -151,6 +153,13 @@ def plot_class_detections(frame_numbers, class_names):
     plt.xticks(rotation=45)
     plt.yticks([])  # Entferne die y-Achse Ticks
     plt.grid(True, axis='x')
+
+    # Legende hinzufügen
+    green_patch = mpatches.Patch(color='green', label='WZ_Aufhanme_Dreht')
+    orange_patch = mpatches.Patch(color='orange', label='WZ_Aufhanme_Steht')
+    red_patch = mpatches.Patch(color='red', label='Spahn Wechsel')
+    plt.legend(handles=[green_patch, orange_patch, red_patch], loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=3)
+
     st.pyplot(plt)
 
 
