@@ -64,7 +64,12 @@ def process_video(video_path, model, frame_step, confidence_threshold):
 
         frame_index += 1
 
-@@ -73,55 +72,72 @@
+    cap.release()
+    plot_results(frame_numbers, class_names)
+    return results_list
+
+# Bildverarbeitung mit YOLOv5
+def detect_objects(image, model, confidence_threshold):
     results = model(image)
     detections = []
 
@@ -90,10 +95,6 @@ def plot_results(frame_numbers, class_names):
     st.pyplot(plt)
 
 # Funktion zum Speichern der Detektionen in einer CSV
-
-
-
-
 
 def save_detections_to_csv(detections, output_csv):
     with open(output_csv, mode='w', newline='') as file:
