@@ -98,11 +98,20 @@ def plot_results(frame_numbers, class_names):
 # Neue Funktion zum Plotten der Klassendetections
 def plot_class_detections(frame_numbers, class_names):
     plt.figure(figsize=(10, 6))
+    unique_frames = sorted(set(frame_numbers))
+    bar_colors = []
+
+    # Bereite die Farben für die Balken vor
     for frame_number, class_name in zip(frame_numbers, class_names):
-        if class_name == "WZ_Aufnahme_Drehen":
-            plt.bar(frame_number, 1, color='green', alpha=0.6)
-        elif class_name == "WZ_Aufnahme_Stehet":
-            plt.bar(frame_number, 1, color='orange', alpha=0.6)
+        if class_name == "WZ_Aufhanme_Dreht":
+            bar_colors.append('green')
+        elif class_name == "WZ_Aufhanme_Steht":
+            bar_colors.append('orange')
+        else:
+            bar_colors.append('blue')  # Andere Klassen, falls vorhanden
+    
+    # Zeichne die Balken
+    plt.bar(unique_frames, [0.5] * len(unique_frames), color=bar_colors, alpha=0.6)  # Höhe der Balken auf 0.5 setzen
     plt.xlabel("Frame Nummer")
     plt.ylabel("Erkennung")
     plt.title("Klassendetections über Frames hinweg")
