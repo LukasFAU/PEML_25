@@ -101,7 +101,7 @@ def plot_class_detections(frame_numbers, class_names):
     bar_colors = []
 
     # Bereite die Farben für die Balken vor
-    for class_name in class_names:
+    for frame_number, class_name in zip(frame_numbers, class_names):
         if class_name == "WZ_Aufhanme_Dreht":
             bar_colors.append('green')
         elif class_name == "WZ_Aufhanme_Steht":
@@ -109,11 +109,8 @@ def plot_class_detections(frame_numbers, class_names):
         else:
             bar_colors.append('blue')  # Andere Klassen, falls vorhanden
 
-    unique_frames = sorted(set(frame_numbers))
-    color_map = dict(zip(unique_frames, bar_colors))
-
     # Zeichne den horizontalen Balken
-    plt.barh(y=0, width=[1], left=0, color=bar_colors, alpha=0.6, edgecolor='black')  # Höhe auf 1 gesetzt
+    plt.barh(y=0, width=len(frame_numbers), left=0, color=bar_colors, alpha=0.6, edgecolor='black')  # Höhe auf 1 gesetzt
     plt.xlabel("Frame Nummer")
     plt.ylabel("Erkennung")
     plt.title("Klassendetections über Frames hinweg")
@@ -121,6 +118,8 @@ def plot_class_detections(frame_numbers, class_names):
     plt.yticks([])  # Entferne die y-Achse Ticks
     plt.grid(True, axis='x')
     st.pyplot(plt)
+
+# Den Rest des Codes unverändert lassen
 
 # Funktion zum Speichern der Detektionen in einer CSV
 def save_detections_to_csv(detections, output_csv):
