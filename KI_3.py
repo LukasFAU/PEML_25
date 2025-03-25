@@ -96,6 +96,7 @@ def plot_results(frame_numbers, class_names):
     st.pyplot(plt)
 
 
+
 def plot_class_detections(frame_numbers, class_names):
     plt.figure(figsize=(10, 2))  # Kleinere Höhe für den horizontalen Balken
 
@@ -109,7 +110,9 @@ def plot_class_detections(frame_numbers, class_names):
             color = 'green'
         elif class_name == "WZ_Aufhanme_Steht":
             color = 'orange'
-   
+        else:
+            color = 'blue'  # Fallback Farbe, falls keine der Bedingungen zutrifft
+
         if class_name == "Spahn":
             spahn_values.append(1)
         else:
@@ -122,6 +125,24 @@ def plot_class_detections(frame_numbers, class_names):
         if spahn_values[i-1] == 1 and spahn_values[i] == 0 and colors[i] == 'orange':
             colors[i] = 'red'
 
+    # Weitere Schleife: Vorwärts durchlaufen und 'orange' zu 'red' ändern
+    for i in range(len(colors)):
+        if colors[i] == 'red':
+            for j in range(i + 1, len(colors)):
+                if colors[j] == 'orange':
+                    colors[j] = 'red'
+                else:
+                    break
+
+    # Weitere Schleife: Rückwärts durchlaufen und 'orange' zu 'red' ändern
+    for i in range(len(colors) - 1, -1, -1):
+        if colors[i] == 'red':
+            for j in range(i - 1, -1, -1):
+                if colors[j] == 'orange':
+                    colors[j] = 'red'
+                else:
+                    break
+
     # Zweite Schleife: Plotten der Balken
     for frame_number, color in zip(frame_numbers, colors):
         plt.barh(y=0, width=1, left=frame_number, color=color, alpha=0.6, edgecolor=color)
@@ -133,6 +154,8 @@ def plot_class_detections(frame_numbers, class_names):
     plt.yticks([])  # Entferne die y-Achse Ticks
     plt.grid(True, axis='x')
     st.pyplot(plt)
+
+
 # Funktion zum Speichern der Detektionen in einer CSV
 def save_detections_to_csv(detections, output_csv):
     with open(output_csv, mode='w', newline='') as file:
