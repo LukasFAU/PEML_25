@@ -98,20 +98,16 @@ def plot_results(frame_numbers, class_names):
 # Neue Funktion zum Plotten der Klassendetections
 def plot_class_detections(frame_numbers, class_names):
     plt.figure(figsize=(10, 2))  # Kleinere Höhe für den horizontalen Balken
-    bar_colors = []
-
-    # Bereite die Farben für die Balken vor
-    for class_name in class_names:
-        if class_name == "WZ_Aufhanme_Dreht":
-            bar_colors.append('green')
-        elif class_name == "WZ_Aufhanme_Steht":
-            bar_colors.append('orange')
-        else:
-            bar_colors.append('blue')  # Andere Klassen, falls vorhanden
 
     # Zeichne den horizontalen Balken für jeden Frame
-    for i, frame_number in enumerate(frame_numbers):
-        plt.barh(y=0, width=1, left=frame_number, color=bar_colors[i], alpha=0.6, edgecolor=bar_colors[i])
+    for frame_number, class_name in zip(frame_numbers, class_names):
+        if class_name == "WZ_Aufhanme_Dreht":
+            color = 'green'
+        elif class_name == "WZ_Aufhanme_Steht":
+            color = 'orange'
+        else:
+            color = 'blue'  # Andere Klassen, falls vorhanden
+        plt.barh(y=0, width=1, left=frame_number, color=color, alpha=0.6, edgecolor=color)
 
     plt.xlabel("Frame Nummer")
     plt.ylabel("Erkennung")
