@@ -109,9 +109,7 @@ def plot_class_detections(frame_numbers, class_names):
             color = 'green'
         elif class_name == "WZ_Aufhanme_Steht":
             color = 'orange'
-        else:
-            color = 'blue'  # Fallback Farbe, falls keine der Bedingungen zutrifft
-
+   
         if class_name == "Spahn":
             spahn_values.append(1)
         else:
