@@ -97,26 +97,29 @@ def plot_results(frame_numbers, class_names):
 
 # Neue Funktion zum Plotten der Klassendetections
 def plot_class_detections(frame_numbers, class_names):
-    plt.figure(figsize=(10, 6))
-    unique_frames = sorted(set(frame_numbers))
+    plt.figure(figsize=(10, 2))  # Kleinere Höhe für den horizontalen Balken
     bar_colors = []
 
     # Bereite die Farben für die Balken vor
-    for frame_number, class_name in zip(frame_numbers, class_names):
+    for class_name in class_names:
         if class_name == "WZ_Aufhanme_Dreht":
             bar_colors.append('green')
         elif class_name == "WZ_Aufhanme_Steht":
             bar_colors.append('orange')
         else:
             bar_colors.append('blue')  # Andere Klassen, falls vorhanden
-    
-    # Zeichne die Balken
-    plt.bar(unique_frames, [0.5] * len(unique_frames), color=bar_colors, alpha=0.6)  # Höhe der Balken auf 0.5 setzen
+
+    unique_frames = sorted(set(frame_numbers))
+    color_map = dict(zip(unique_frames, bar_colors))
+
+    # Zeichne den horizontalen Balken
+    plt.barh(y=0, width=[1], left=0, color=bar_colors, alpha=0.6, edgecolor='black')  # Höhe auf 1 gesetzt
     plt.xlabel("Frame Nummer")
     plt.ylabel("Erkennung")
     plt.title("Klassendetections über Frames hinweg")
     plt.xticks(rotation=45)
-    plt.grid(True)
+    plt.yticks([])  # Entferne die y-Achse Ticks
+    plt.grid(True, axis='x')
     st.pyplot(plt)
 
 # Funktion zum Speichern der Detektionen in einer CSV
