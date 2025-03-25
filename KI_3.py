@@ -111,7 +111,7 @@ def plot_class_detections(frame_numbers, class_names):
 
     # Zeichne den horizontalen Balken für jeden Frame
     for i, frame_number in enumerate(frame_numbers):
-        plt.barh(y=0, width=1, left=frame_number, color=bar_colors[i], alpha=0.6, edgecolor='black')
+        plt.barh(y=0, width=1, left=frame_number, color=bar_colors[i], alpha=0.6, edgecolor=bar_colors[i])
 
     plt.xlabel("Frame Nummer")
     plt.ylabel("Erkennung")
