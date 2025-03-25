@@ -95,49 +95,17 @@ def plot_results(frame_numbers, class_names):
     plt.grid(True)
     st.pyplot(plt)
 
-# Funktion zum Analysieren der Klassenblöcke
-def analyze_class_blocks(frame_numbers, class_names):
-    blocks = []
-    current_class = class_names[0]
-    start_frame = frame_numbers[0]
-
-    for i in range(1, len(frame_numbers)):
-        if class_names[i] != current_class:
-            blocks.append((start_frame, frame_numbers[i-1], current_class))
-            current_class = class_names[i]
-            start_frame = frame_numbers[i]
-    
-    # Den letzten Block hinzufügen
-    blocks.append((start_frame, frame_numbers[-1], current_class))
-    
-    return blocks
-
-# Funktion zum Erstellen des Farbvektors
-def create_color_vector(blocks):
-    color_vector = []
-    for start_frame, end_frame, class_name in blocks:
-        if class_name == "WZ_Aufhanme_Dreht":
-            color = 'green'
-        elif class_name == "WZ_Aufhanme_Steht":
-            color = 'orange'
-        else:
-            color = 'blue'  # Andere Klassen, falls vorhanden
-        color_vector.append((start_frame, end_frame, color))
-    return color_vector
-
 # Neue Funktion zum Plotten der Klassendetections
 def plot_class_detections(frame_numbers, class_names):
     plt.figure(figsize=(10, 2))  # Kleinere Höhe für den horizontalen Balken
 
-    # Analyse der Blöcke
-    blocks = analyze_class_blocks(frame_numbers, class_names)
-
-    # Erstellen des Farbvektors
-    color_vector = create_color_vector(blocks)
-
-    # Zeichne die Blöcke basierend auf dem Farbvektor
-    for start_frame, end_frame, color in color_vector:
-        plt.barh(y=0, width=end_frame-start_frame+1, left=start_frame, color=color, alpha=0.6, edgecolor=color)
+    # Zeichne den horizontalen Balken für jeden Frame
+    for frame_number, class_name in zip(frame_numbers, class_names):
+        if class_name == "WZ_Aufhanme_Dreht":
+            color = 'green'
+        elif class_name == "WZ_Aufhanme_Steht":
+            color = 'orange'
+        plt.barh(y=0, width=1, left=frame_number, color=color, alpha=0.6, edgecolor=color)
 
     plt.xlabel("Frame Nummer")
     plt.ylabel("Erkennung")
@@ -146,6 +114,8 @@ def plot_class_detections(frame_numbers, class_names):
     plt.yticks([])  # Entferne die y-Achse Ticks
     plt.grid(True, axis='x')
     st.pyplot(plt)
+
+# Den Rest des Codes unverändert lassen
 
 # Funktion zum Speichern der Detektionen in einer CSV
 def save_detections_to_csv(detections, output_csv):
@@ -170,7 +140,7 @@ if uploaded_file is not None:
         st.image(image, caption="Hochgeladenes Bild", use_column_width=True)
         processed_image, detections = detect_objects(image, model, confidence_threshold)
         st.image(processed_image, caption="Erkannte Objekte", use_column_width=True)
-        
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp_file:
             output_csv = temp_file.name
             save_detections_to_csv(detections, output_csv)
@@ -183,15 +153,15 @@ if uploaded_file is not None:
 
         st.video(temp_video_path)
         results = process_video(temp_video_path, model, frame_step, confidence_threshold)
-        
+
         video_detections = []
         for frame_index, frame_detections in enumerate(results):
             for det in frame_detections:
                 video_detections.append([f"Frame {frame_index}", *det])
-        
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp_file:
             output_csv = temp_file.name
             save_detections_to_csv(video_detections, output_csv)
             st.download_button("📥 CSV mit Detektionen herunterladen", data=open(output_csv, "rb").read(), file_name="detections.csv")
-        
+
         os.remove(temp_video_path)
