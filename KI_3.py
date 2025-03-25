@@ -95,19 +95,34 @@ def plot_results(frame_numbers, class_names):
     plt.grid(True)
     st.pyplot(plt)
 
+
 def plot_class_detections(frame_numbers, class_names):
     plt.figure(figsize=(10, 2))  # Kleinere Höhe für den horizontalen Balken
 
-    # Vektor zum Speichern der Farben
+    # Vektoren zum Speichern der Farben und der Spahn-Werte
     colors = []
+    spahn_values = []
 
-    # Erste Schleife: Abfrage der Klassen und Speichern der Farben
+    # Erste Schleife: Abfrage der Klassen und Speichern der Farben und Spahn-Werte
     for class_name in class_names:
         if class_name == "WZ_Aufhanme_Dreht":
             color = 'green'
         elif class_name == "WZ_Aufhanme_Steht":
             color = 'orange'
+        else:
+            color = 'blue'  # Fallback Farbe, falls keine der Bedingungen zutrifft
+
+        if class_name == "Spahn":
+            spahn_values.append(1)
+        else:
+            spahn_values.append(0)
+
         colors.append(color)
+
+    # Zusätzliche Schleife: Überprüfen des Wechsels der Klasse "Spahn" und Anpassung der Farben
+    for i in range(1, len(spahn_values)):
+        if spahn_values[i-1] == 1 and spahn_values[i] == 0 and colors[i] == 'orange':
+            colors[i] = 'red'
 
     # Zweite Schleife: Plotten der Balken
     for frame_number, color in zip(frame_numbers, colors):
@@ -120,7 +135,6 @@ def plot_class_detections(frame_numbers, class_names):
     plt.yticks([])  # Entferne die y-Achse Ticks
     plt.grid(True, axis='x')
     st.pyplot(plt)
-
 # Funktion zum Speichern der Detektionen in einer CSV
 def save_detections_to_csv(detections, output_csv):
     with open(output_csv, mode='w', newline='') as file:
