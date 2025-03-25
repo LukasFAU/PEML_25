@@ -95,10 +95,8 @@ def plot_results(frame_numbers, class_names):
     plt.grid(True)
     st.pyplot(plt)
 
-def plot_class_detections(frame_numbers, class_names):
-    plt.figure(figsize=(10, 2))  # Kleinere Höhe für den horizontalen Balken
-
-    # Start und Ende der Blöcke erfassen
+# Funktion zum Analysieren der Klassenblöcke
+def analyze_class_blocks(frame_numbers, class_names):
     blocks = []
     current_class = class_names[0]
     start_frame = frame_numbers[0]
@@ -111,8 +109,12 @@ def plot_class_detections(frame_numbers, class_names):
     
     # Den letzten Block hinzufügen
     blocks.append((start_frame, frame_numbers[-1], current_class))
+    
+    return blocks
 
-    # Zeichne die Blöcke
+# Funktion zum Erstellen des Farbvektors
+def create_color_vector(blocks):
+    color_vector = []
     for start_frame, end_frame, class_name in blocks:
         if class_name == "WZ_Aufhanme_Dreht":
             color = 'green'
@@ -120,6 +122,21 @@ def plot_class_detections(frame_numbers, class_names):
             color = 'orange'
         else:
             color = 'blue'  # Andere Klassen, falls vorhanden
+        color_vector.append((start_frame, end_frame, color))
+    return color_vector
+
+# Neue Funktion zum Plotten der Klassendetections
+def plot_class_detections(frame_numbers, class_names):
+    plt.figure(figsize=(10, 2))  # Kleinere Höhe für den horizontalen Balken
+
+    # Analyse der Blöcke
+    blocks = analyze_class_blocks(frame_numbers, class_names)
+
+    # Erstellen des Farbvektors
+    color_vector = create_color_vector(blocks)
+
+    # Zeichne die Blöcke basierend auf dem Farbvektor
+    for start_frame, end_frame, color in color_vector:
         plt.barh(y=0, width=end_frame-start_frame+1, left=start_frame, color=color, alpha=0.6, edgecolor=color)
 
     plt.xlabel("Frame Nummer")
