@@ -1,6 +1,6 @@
 # # mit cv2
 # # --upgrade --force-reinstall opencv-python-headless
-opencv-python-headless
+opencv-python
 torch
 torchvision
 ultralytics
